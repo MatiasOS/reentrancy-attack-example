@@ -1,0 +1,31 @@
+{
+  "name": "reentrancy-attack-example",
+  "version": "1.0.0",
+  "description": "Reentrancy attack example",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatiasOS/reentrancy-attack-example.git"
+  },
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/MatiasOS/reentrancy-attack-example/issues"
+  },
+  "homepage": "https://github.com/MatiasOS/reentrancy-attack-example#readme",
+  "devDependencies": {
+    "@codechecks/client": "^0.1.10",
+    "eth-gas-reporter": "^0.2.14",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1"
+  },
+  "dependencies": {
+    "@openzeppelin/test-helpers": "^0.5.5"
+  }
+}
