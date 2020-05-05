@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "((ganache-cli > /dev/null & truffle test) && kill -9 $(lsof -ti :8545)) || kill -9 $(lsof -ti :8545)"
   },
   "repository": {
     "type": "git",

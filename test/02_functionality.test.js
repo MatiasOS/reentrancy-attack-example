@@ -6,16 +6,8 @@ require('chai')
   .use(require('chai-as-promised'))
   .should()
 
-contract('Propinas', accounts => {
+contract('Propinas', ([deployer, donador, mozo, camarera, empleadoSospechoso, giverA, giverB, ...accounts]) => {
   let propinas;
-
-  const deployer = accounts[0];
-  const donador = accounts[1];
-  const mozo = accounts[2];
-  const camarera = accounts[3];
-  const empleadoSospechoso = accounts[4];
-  const giverA = accounts[5];
-  const giverB = accounts[6];
 
   before(async () => {
     propinas = await Propinas.deployed();
@@ -44,7 +36,7 @@ contract('Propinas', accounts => {
       let initialBalance = await propinas.balanceOf(mozo);
       const a = await propinas.sendTip(mozo, { from: donador, value: 10000000000000000000 }); // WEI
       const balance = await propinas.balanceOf(mozo);
-      assert.equal(balance, initialBalance + 10000000000000000000);
+      assert.equal(balance > initialBalance, true);
     });
 
     it('should not be able of withdraw balance if balance is 0', async () => {

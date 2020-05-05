@@ -5,7 +5,7 @@ require('chai')
   .use(require('chai-as-promised'))
   .should()
 
-contract('Propinas', accounts => {
+contract('Propinas', () => {
   let propinas;
 
   before(async () => {
@@ -23,27 +23,27 @@ contract('Propinas', accounts => {
 });
 
 contract('Atacante', accounts => {
-    let atacante;
-  
-    before(async () => {
-      atacante = await Atacante.deployed();
-    })
+  let atacante;
 
-    describe('Deployment', async () => {
-      it('Deploys successfully', async () => {
-        const address = atacante.address;
-        assert.notEqual(address, '');
-        assert.notEqual(address, 0x0);
-        assert.notEqual(address, null);
-        assert.notEqual(address, undefined);
-      })
-      it('Should have an address to perform the attack', async () => {
-        const address = atacante.address;
-        assert.notEqual(address, '');
-        assert.notEqual(address, 0x0);
-        assert.notEqual(address, null);
-        assert.notEqual(address, undefined);
-      })
+  before(async () => {
+    atacante = await Atacante.deployed();
+  })
+
+  describe('Deployment', async () => {
+    it('Deploys successfully', async () => {
+      const address = atacante.address;
+      assert.notEqual(address, '');
+      assert.notEqual(address, 0x0);
+      assert.notEqual(address, null);
+      assert.notEqual(address, undefined);
+    })
+    it('Should have an address to perform the attack', async () => {
+      const address = atacante.address;
+      assert.notEqual(address, '');
+      assert.notEqual(address, 0x0);
+      assert.notEqual(address, null);
+      assert.notEqual(address, undefined);
     })
   })
+})
 

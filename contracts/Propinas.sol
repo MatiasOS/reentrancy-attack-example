@@ -1,4 +1,4 @@
-pragma solidity 0.6.4;
+pragma solidity 0.6.7;
 
 contract Propinas {
   mapping (address => uint) public balanceOf;
@@ -13,7 +13,8 @@ contract Propinas {
 
   function get() public {
     require(balanceOf[msg.sender] > 0, 'Balance is zero');
-    msg.sender.transfer(balanceOf[msg.sender]);
+    (bool success, ) = msg.sender.call.value(balanceOf[msg.sender])("");
+    require(success, "Transfer failed.");
     balanceOf[msg.sender] = 0;
   }
 

